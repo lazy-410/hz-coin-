@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUEDC 自动签到</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --primary-dark: #45a049;
+            --primary-light: #e8f5e8;
+            --secondary-color: #2196F3;
+            --text-color: #333333;
+            --text-light: #666666;
+            --background-color: #f5f7fa;
+            --card-background: #ffffff;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            transition: var(--transition);
+        }
+        
+        .container:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+        
+        form {
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+        
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+            background-color: #fafafa;
+        }
+        
+        .form-group input[type="text"]:focus,
+        .form-group input[type="password"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+        
+        .form-group.checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .form-group.checkbox-group input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.1);
+        }
+        
+        .form-group.checkbox-group label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #1976D2;
+        }
+        
+        .btn-danger {
+            background-color: #ef4444;
+        }
+        
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid transparent;
+            background-color: #f8f9fa;
+        }
+        
+        .result.success {
+            border-left-color: var(--primary-color);
+            background-color: var(--primary-light);
+        }
+        
+        .result.error {
+            border-left-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        
+        .result strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .result.success strong {
+            color: #155724;
+        }
+        
+        .result.error strong {
+            color: #721c24;
+        }
+        
+        .info {
+            margin-top: 6px;
+            font-size: 14px;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+        }
+        
+        .info::before {
+            content: "•";
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+        
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        
+        /* 账号选择下拉菜单 */
+        .account-selector {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        
+        .account-selector select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+            background-color: #fafafa;
+        }
+        
+        .account-selector select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+        
+        /* 操作按钮组 */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .action-buttons button {
+            flex: 1;
+        }
+        
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        /* 账号列表 */
+        .account-list {
+            margin-top: 16px;
+        }
+        
+        .account-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background-color: #f9fafb;
+        }
+        
+        .account-item .nickname {
+            font-weight: 500;
+        }
+        
+        .account-item .username {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            button {
+                padding: 12px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>NUEDC 自动签到</h1>
+            <p>一键完成每日签到，获取赫兹币奖励</p>
+        </div>
+        
+        <!-- 签到表单 -->
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">TI 用户名/邮箱</label>
+                <input type="text" id="username" name="username" placeholder="输入账号或选择已保存的账号" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">TI 密码</label>
+                <input type="password" id="password" name="password" placeholder="输入密码" required>
+            </div>
+            
+            <!-- 已保存账号选择 -->
+            {% if accounts %}
+            <div class="form-group">
+                <label for="account_username">或选择已保存账号</label>
+                <div class="account-selector">
+                    <select id="account_username" name="account_username" onchange="fillAccountInfo(this.value)">
+                        <option value="">-- 选择账号 --</option>
+                        {% for account in accounts %}
+                        <option value="{{ account.username }}" data-password="{{ account.password }}">{{ account.nickname }} ({{ account.username }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="verbose" name="verbose">
+                <label for="verbose">显示详细日志</label>
+            </div>
+            
+            <button type="submit">开始签到</button>
+        </form>
+        
+        <!-- 操作按钮组 -->
+        <div class="action-buttons">
+            <button type="button" class="btn-secondary" onclick="openModal('addModal')">添加账号</button>
+            {% if accounts %}
+            <button type="button" class="btn-danger" onclick="openModal('deleteModal')">删除账号</button>
+            {% endif %}
+        </div>
+        
+        <!-- 签到结果 -->
+        {% if result %}
+        <div class="result {% if result.success %}success{% else %}error{% endif %}">
+            <strong>{{ result.message }}</strong>
+            
+            {% if result.sign_count %}
+            <div class="info">连续签到天数: {{ result.sign_count }}</div>
+            {% endif %}
+            
+            {% if result.user_info %}
+            {% if result.user_info.username %}
+            <div class="info">当前账户: {{ result.user_info.username }}</div>
+            {% endif %}
+            <div class="info">赫兹币余额: {{ result.user_info.hz_coins }}</div>
+            {% endif %}
+            
+            {% if result.error %}
+            <div class="info">错误信息: {{ result.error }}</div>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <!-- 已保存账号列表 -->
+        {% if accounts %}
+        <div class="account-list">
+            <h3 style="font-size: 16px; margin-bottom: 10px;">已保存账号</h3>
+            {% for account in accounts %}
+            <div class="account-item">
+                <div>
+                    <div class="nickname">{{ account.nickname }}</div>
+                    <div class="username">{{ account.username }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="footer">
+            <p>© 2026 NUEDC 自动签到工具</p>
+        </div>
+    </div>
+    
+    <!-- 添加账号模态框 -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>添加账号</h2>
+                <span class="close" onclick="closeModal('addModal')">&times;</span>
+            </div>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="add_username">TI 用户名/邮箱</label>
+                    <input type="text" id="add_username" name="add_username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="add_password">TI 密码</label>
+                    <input type="password" id="add_password" name="add_password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="add_nickname">昵称（可选）</label>
+                    <input type="text" id="add_nickname" name="add_nickname" placeholder="默认使用邮箱前缀">
+                </div>
+                
+                <button type="submit" class="btn-secondary">添加账号</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 删除账号模态框 -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>删除账号</h2>
+                <span class="close" onclick="closeModal('deleteModal')">&times;</span>
+            </div>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="delete_username">选择账号</label>
+                    <select id="delete_username" name="delete_username">
+                        {% for account in accounts %}
+                        <option value="{{ account.username }}">{{ account.nickname }} ({{ account.username }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn-danger">删除账号</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // 填充账号信息
+        function fillAccountInfo(username) {
+            if (!username) {
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                return;
+            }
+            
+            const select = document.getElementById('account_username');
+            const option = select.querySelector(`option[value="${username}"]`);
+            if (option) {
+                document.getElementById('username').value = username;
+                document.getElementById('password').value = option.getAttribute('data-password');
+            }
+        }
+        
+        // 打开模态框
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+        
+        // 关闭模态框
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modals = document.getElementsByClassName('modal');
+            for (let i = 0; i < modals.length; i++) {
+                if (event.target == modals[i]) {
+                    modals[i].style.display = 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

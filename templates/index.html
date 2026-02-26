@@ -550,8 +550,7 @@
             const account = accounts.find(acc => acc.username === username);
             if (account) {
                 document.getElementById('username').value = account.username;
-                // 密码需要手动输入，不自动填充
-                document.getElementById('password').value = '';
+                document.getElementById('password').value = account.password;
             }
         }
         

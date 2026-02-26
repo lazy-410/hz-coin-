@@ -367,19 +367,14 @@
             </div>
             
             <!-- 已保存账号选择 -->
-            {% if accounts %}
             <div class="form-group">
                 <label for="account_username">或选择已保存账号</label>
                 <div class="account-selector">
                     <select id="account_username" name="account_username" onchange="fillAccountInfo(this.value)">
                         <option value="">-- 选择账号 --</option>
-                        {% for account in accounts %}
-                        <option value="{{ account.username }}" data-password="{{ account.password }}">{{ account.nickname }} ({{ account.username }})</option>
-                        {% endfor %}
                     </select>
                 </div>
             </div>
-            {% endif %}
             
             <div class="form-group checkbox-group">
                 <input type="checkbox" id="verbose" name="verbose">
@@ -392,9 +387,7 @@
         <!-- 操作按钮组 -->
         <div class="action-buttons">
             <button type="button" class="btn-secondary" onclick="openModal('addModal')">添加账号</button>
-            {% if accounts %}
             <button type="button" class="btn-danger" onclick="openModal('deleteModal')">删除账号</button>
-            {% endif %}
         </div>
         
         <!-- 签到结果 -->
@@ -420,19 +413,12 @@
         {% endif %}
         
         <!-- 已保存账号列表 -->
-        {% if accounts %}
         <div class="account-list">
             <h3 style="font-size: 16px; margin-bottom: 10px;">已保存账号</h3>
-            {% for account in accounts %}
-            <div class="account-item">
-                <div>
-                    <div class="nickname">{{ account.nickname }}</div>
-                    <div class="username">{{ account.username }}</div>
-                </div>
+            <div id="accountsList" class="p-4 border rounded-md bg-gray-50">
+                <p id="noAccountsMsg">暂无保存的账号</p>
             </div>
-            {% endfor %}
         </div>
-        {% endif %}
         
         <div class="footer">
             <p>© 2026 NUEDC 自动签到工具</p>
@@ -446,20 +432,20 @@
                 <h2>添加账号</h2>
                 <span class="close" onclick="closeModal('addModal')">&times;</span>
             </div>
-            <form method="POST">
+            <form onsubmit="addAccount(event)">
                 <div class="form-group">
                     <label for="add_username">TI 用户名/邮箱</label>
-                    <input type="text" id="add_username" name="add_username" required>
+                    <input type="text" id="add_username" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="add_password">TI 密码</label>
-                    <input type="password" id="add_password" name="add_password" required>
+                    <input type="password" id="add_password" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="add_nickname">昵称（可选）</label>
-                    <input type="text" id="add_nickname" name="add_nickname" placeholder="默认使用邮箱前缀">
+                    <input type="text" id="add_nickname" placeholder="默认使用邮箱前缀">
                 </div>
                 
                 <button type="submit" class="btn-secondary">添加账号</button>
@@ -474,13 +460,11 @@
                 <h2>删除账号</h2>
                 <span class="close" onclick="closeModal('deleteModal')">&times;</span>
             </div>
-            <form method="POST">
+            <form onsubmit="deleteAccount(event)">
                 <div class="form-group">
                     <label for="delete_username">选择账号</label>
-                    <select id="delete_username" name="delete_username">
-                        {% for account in accounts %}
-                        <option value="{{ account.username }}">{{ account.nickname }} ({{ account.username }})</option>
-                        {% endfor %}
+                    <select id="delete_username">
+                        <option value="">-- 选择账号 --</option>
                     </select>
                 </div>
                 
@@ -490,6 +474,70 @@
     </div>
     
     <script>
+        // 本地存储键名
+        const STORAGE_KEY = 'nuedc_accounts';
+        
+        // 获取所有账号
+        function getAccounts() {
+            const accounts = localStorage.getItem(STORAGE_KEY);
+            return accounts ? JSON.parse(accounts) : [];
+        }
+        
+        // 保存账号
+        function saveAccounts(accounts) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts));
+        }
+        
+        // 更新账号选择下拉框
+        function updateAccountSelect() {
+            const accounts = getAccounts();
+            const select = document.getElementById('account_username');
+            const deleteSelect = document.getElementById('delete_username');
+            const accountsList = document.getElementById('accountsList');
+            const noAccountsMsg = document.getElementById('noAccountsMsg');
+            
+            // 清空现有选项
+            select.innerHTML = '<option value="">-- 选择账号 --</option>';
+            deleteSelect.innerHTML = '<option value="">-- 选择账号 --</option>';
+            
+            // 清空账号列表
+            accountsList.innerHTML = '';
+            
+            if (accounts.length === 0) {
+                // 显示无账号提示
+                const p = document.createElement('p');
+                p.id = 'noAccountsMsg';
+                p.textContent = '暂无保存的账号';
+                accountsList.appendChild(p);
+            } else {
+                // 添加账号选项
+                accounts.forEach(account => {
+                    // 添加到签到选择框
+                    const option = document.createElement('option');
+                    option.value = account.username;
+                    option.textContent = `${account.nickname} (${account.username})`;
+                    select.appendChild(option);
+                    
+                    // 添加到删除选择框
+                    const deleteOption = document.createElement('option');
+                    deleteOption.value = account.username;
+                    deleteOption.textContent = `${account.nickname} (${account.username})`;
+                    deleteSelect.appendChild(deleteOption);
+                    
+                    // 添加到账号列表
+                    const accountItem = document.createElement('div');
+                    accountItem.className = 'account-item';
+                    accountItem.innerHTML = `
+                        <div>
+                            <div class="nickname">${account.nickname}</div>
+                            <div class="username">${account.username}</div>
+                        </div>
+                    `;
+                    accountsList.appendChild(accountItem);
+                });
+            }
+        }
+        
         // 填充账号信息
         function fillAccountInfo(username) {
             if (!username) {
@@ -498,16 +546,85 @@
                 return;
             }
             
-            const select = document.getElementById('account_username');
-            const option = select.querySelector(`option[value="${username}"]`);
-            if (option) {
-                document.getElementById('username').value = username;
-                document.getElementById('password').value = option.getAttribute('data-password');
+            const accounts = getAccounts();
+            const account = accounts.find(acc => acc.username === username);
+            if (account) {
+                document.getElementById('username').value = account.username;
+                // 密码需要手动输入，不自动填充
+                document.getElementById('password').value = '';
             }
+        }
+        
+        // 添加账号
+        function addAccount(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('add_username').value.trim();
+            const password = document.getElementById('add_password').value;
+            const nickname = document.getElementById('add_nickname').value.trim();
+            
+            if (!username || !password) {
+                alert('请输入用户名和密码');
+                return;
+            }
+            
+            const accounts = getAccounts();
+            
+            // 检查账号是否已存在
+            const existingAccount = accounts.find(acc => acc.username === username);
+            if (existingAccount) {
+                alert('账号已存在');
+                return;
+            }
+            
+            // 添加新账号
+            accounts.push({
+                username: username,
+                password: password,
+                nickname: nickname || username.split('@')[0]
+            });
+            
+            saveAccounts(accounts);
+            updateAccountSelect();
+            closeModal('addModal');
+            
+            // 清空表单
+            document.getElementById('add_username').value = '';
+            document.getElementById('add_password').value = '';
+            document.getElementById('add_nickname').value = '';
+            
+            alert('账号添加成功');
+        }
+        
+        // 删除账号
+        function deleteAccount(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('delete_username').value;
+            if (!username) {
+                alert('请选择要删除的账号');
+                return;
+            }
+            
+            if (!confirm('确定要删除这个账号吗？')) {
+                return;
+            }
+            
+            const accounts = getAccounts();
+            const newAccounts = accounts.filter(acc => acc.username !== username);
+            saveAccounts(newAccounts);
+            updateAccountSelect();
+            closeModal('deleteModal');
+            
+            alert('账号删除成功');
         }
         
         // 打开模态框
         function openModal(modalId) {
+            // 打开删除模态框时更新选项
+            if (modalId === 'deleteModal') {
+                updateAccountSelect();
+            }
             document.getElementById(modalId).style.display = 'block';
         }
         
@@ -525,6 +642,11 @@
                 }
             }
         }
+        
+        // 页面加载时初始化
+        window.onload = function() {
+            updateAccountSelect();
+        };
     </script>
 </body>
 </html>

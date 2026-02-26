@@ -137,6 +137,28 @@ NUEDC_TI_USERNAME=your_email@example.com NUEDC_TI_PASSWORD=your_password python 
 - 默认为每天 UTC 时间 16 点执行（北京时间 0 点）
 - 可修改 `.github/workflows/` 目录下的 workflow 文件中的 cron 表达式
 
+### 4. 通知配置（可选）
+
+支持通过飞书或邮件接收签到结果通知：
+
+#### 飞书通知配置：
+1. **创建飞书机器人**：
+   - 打开飞书群 → 群设置 → 群机器人 → 添加机器人 → 选择 "自定义"
+   - 填写机器人名称，获取 webhook URL
+
+2. **添加 GitHub Secret**：
+   - 进入仓库 Settings → Secrets and variables → Actions
+   - 添加 `FEISHU_WEBHOOK` Secret，值为飞书机器人的 webhook URL
+
+#### 邮件通知配置：
+1. **添加 GitHub Secrets**：
+   - `SMTP_SERVER`：SMTP 服务器地址（如 smtp.qq.com）
+   - `SMTP_PORT`：SMTP 端口（通常为 587）
+   - `SMTP_USERNAME`：邮箱用户名
+   - `SMTP_PASSWORD`：邮箱密码或授权码
+   - `FROM_EMAIL`：发件人邮箱
+   - `NOTIFICATION_EMAIL`：收件人邮箱
+
 ## 注意事项
 
 1. **安全性**：

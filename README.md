@@ -106,7 +106,7 @@ NUEDC_TI_USERNAME=your_email@example.com NUEDC_TI_PASSWORD=your_password python 
    - 进入仓库 Settings → Secrets and variables → Actions
    - 点击 "New repository secret"
    - 添加以下 Secrets：
-     - `NUEDC_USERNAME`：你的 TI 用户名/邮箱![alt text](image.png)
+     - `NUEDC_USERNAME`：你的 TI 用户名/邮箱
      - `NUEDC_PASSWORD`：你的 TI 密码
 
 2. **启用 Workflow**：

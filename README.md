@@ -106,7 +106,7 @@ NUEDC_TI_USERNAME=your_email@example.com NUEDC_TI_PASSWORD=your_password python 
    - 进入仓库 Settings → Secrets and variables → Actions
    - 点击 "New repository secret"
    - 添加以下 Secrets：
-     - `NUEDC_USERNAME`：你的 TI 用户名/邮箱
+     - `NUEDC_USERNAME`：你的 TI 用户名/邮箱![alt text](image.png)
      - `NUEDC_PASSWORD`：你的 TI 密码
 
 2. **启用 Workflow**：
@@ -137,22 +137,6 @@ NUEDC_TI_USERNAME=your_email@example.com NUEDC_TI_PASSWORD=your_password python 
 - 默认为每天 UTC 时间 0 点执行（北京时间 8 点）
 - 可修改 `.github/workflows/` 目录下的 workflow 文件中的 cron 表达式
 
-## 部署到 Render
-
-1. **创建 Render 账号**：访问 [Render](https://render.com) 并注册账号
-
-2. **创建新的 Web Service**：
-   - 选择 "New Web Service"
-   - 连接你的 GitHub 仓库
-   - 填写配置：
-     - Build Command: `pip install -r requirements.txt`
-     - Start Command: `gunicorn app:app`
-     - 环境：Python 3.10
-
-3. **部署完成**：
-   - 部署成功后，Render 会提供一个公共 URL
-   - 访问该 URL 即可使用网页版签到功能
-
 ## 注意事项
 
 1. **安全性**：
@@ -167,11 +151,6 @@ NUEDC_TI_USERNAME=your_email@example.com NUEDC_TI_PASSWORD=your_password python 
 4. **页面结构**：由于 NUEDC 网站的页面结构可能会变化，获取赫兹币的功能可能需要根据网站更新进行调整
 
 5. **依赖更新**：定期更新依赖包以确保兼容性
-
-6. **Render 免费计划**：
-   - 免费计划的服务会在 15 分钟无活动后睡眠
-   - 访问时可能需要 50 秒以上的启动时间
-   - GitHub Actions 不受此限制，仍会每天自动执行
 
 ## 常见问题
 
@@ -210,7 +189,6 @@ NUEDC_TI_USERNAME=your_email@example.com NUEDC_TI_PASSWORD=your_password python 
 - **HTML 解析**：BeautifulSoup4 4.14.3
 - **前端**：HTML5 + CSS3
 - **自动化**：GitHub Actions
-- **部署**：Render
 
 ## 许可证
 
@@ -243,6 +221,5 @@ MIT License
 ### v1.3.0
 - 添加 GitHub Actions 自动签到功能
 - 支持多账号自动签到
-- 提供 Render 部署指南
 - 增强安全性和稳定性
 - 完善项目文档

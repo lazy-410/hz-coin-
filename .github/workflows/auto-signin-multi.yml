@@ -16,7 +16,7 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: pip install -r requirements.txt
-      - name: Run signin
+      - name: Run multi-account signin
         env:
           NUEDC_ACCOUNTS: ${{ secrets.NUEDC_ACCOUNTS }}
-        run: python -c "import json; from signin import run_signin; accounts=json.loads('${{ secrets.NUEDC_ACCOUNTS }}'); for acc in accounts: print('Signing in for', acc['username']); run_signin(acc['username'], acc['password'], True)"
+        run: python auto_signin_multi.py

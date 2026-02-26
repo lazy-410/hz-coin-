@@ -1,4 +1,4 @@
-name: Auto Signin (Multi Account)
+name: Auto Signin Multi
 
 on:
   schedule:
@@ -10,16 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Run signin for all accounts
+        run: pip install -r requirements.txt
+      - name: Run signin
         env:
           NUEDC_ACCOUNTS: ${{ secrets.NUEDC_ACCOUNTS }}
-        run: |
-          python -c "import json; from signin import run_signin; accounts_json = '$NUEDC_ACCOUNTS'; if not accounts_json: print('No accounts found in secrets'); exit(1); accounts = json.loads(accounts_json); print('Found', len(accounts), 'accounts'); for account in accounts: username = account.get('username'); password = account.get('password'); if not username or not password: print('Skipping invalid account:', account); continue; print('Running signin for:', username); try: result = run_signin(username, password, True); print('Signin result for', username, ':', result); except Exception as e: print('Error signing in for', username, ':', str(e))"
+        run: python -c "import json; from signin import run_signin; accounts=json.loads('${{ secrets.NUEDC_ACCOUNTS }}'); for acc in accounts: print('Signing in for', acc['username']); run_signin(acc['username'], acc['password'], True)"

@@ -1,6 +1,6 @@
 # NUEDC 自动签到工具
 
-一个用于自动登录 NUEDC 培训网站并完成每日签到以获取 Hz 币的 Python 工具，包含命令行和网页界面两种使用方式。
+一个用于自动登录 NUEDC 培训网站并完成每日签到以获取 Hz 币的 Python 工具，包含命令行和网页界面两种使用方式，并支持通过 GitHub Actions 实现自动签到。
 
 ## 功能特点
 
@@ -13,6 +13,7 @@
 - ✅ 支持多账号管理（网页版）
 - ✅ 简洁美观的用户界面
 - ✅ 响应式设计，适配不同设备
+- ✅ 通过 GitHub Actions 实现自动签到
 
 ## 项目结构
 
@@ -20,9 +21,14 @@
 ├── app.py              # Flask 主应用（网页版）
 ├── signin.py           # 核心签到逻辑
 ├── nuedc_hz_signin.py  # 命令行版本
+├── auto_signin_multi.py # 多账号自动签到脚本
 ├── requirements.txt    # 依赖配置
 ├── templates/
 │   └── index.html      # 网页界面模板
+├── .github/
+│   └── workflows/
+│       ├── auto-signin.yml        # 单账号自动签到 workflow
+│       └── auto-signin-multi.yml  # 多账号自动签到 workflow
 ├── .gitignore          # Git 忽略文件
 └── README.md           # 项目说明
 ```
@@ -76,6 +82,7 @@ NUEDC_TI_USERNAME=your_email@example.com NUEDC_TI_PASSWORD=your_password python 
 - **账号管理**：通过模态框添加和删除账号
 - **结果反馈**：实时显示签到结果、连续签到天数和赫兹币余额
 - **详细日志**：可查看详细的签到过程
+- **自动签到设置**：可设置每天自动签到的时间
 
 ## 命令行参数
 
@@ -91,13 +98,80 @@ NUEDC_TI_USERNAME=your_email@example.com NUEDC_TI_PASSWORD=your_password python 
 - `NUEDC_TI_USERNAME`：TI 用户名/邮箱
 - `NUEDC_TI_PASSWORD`：TI 密码
 
+## 自动签到配置（GitHub Actions）
+
+### 1. 单账号配置
+
+1. **创建 GitHub Secrets**：
+   - 进入仓库 Settings → Secrets and variables → Actions
+   - 点击 "New repository secret"
+   - 添加以下 Secrets：
+     - `NUEDC_USERNAME`：你的 TI 用户名/邮箱
+     - `NUEDC_PASSWORD`：你的 TI 密码
+
+2. **启用 Workflow**：
+   - 进入仓库 Actions 页面
+   - 找到 "Auto Signin" workflow
+   - 点击 "Run workflow" 测试
+
+### 2. 多账号配置
+
+1. **创建 GitHub Secrets**：
+   - 进入仓库 Settings → Secrets and variables → Actions
+   - 点击 "New repository secret"
+   - 添加 `NUEDC_ACCOUNTS` Secret，值为 JSON 格式的账号列表：
+     ```json
+     [
+       {"username": "user1@example.com", "password": "password1"},
+       {"username": "user2@example.com", "password": "password2"}
+     ]
+     ```
+
+2. **启用 Workflow**：
+   - 进入仓库 Actions 页面
+   - 找到 "Auto Signin Multi" workflow
+   - 点击 "Run workflow" 测试
+
+### 3. 自动执行时间
+
+- 默认为每天 UTC 时间 0 点执行（北京时间 8 点）
+- 可修改 `.github/workflows/` 目录下的 workflow 文件中的 cron 表达式
+
+## 部署到 Render
+
+1. **创建 Render 账号**：访问 [Render](https://render.com) 并注册账号
+
+2. **创建新的 Web Service**：
+   - 选择 "New Web Service"
+   - 连接你的 GitHub 仓库
+   - 填写配置：
+     - Build Command: `pip install -r requirements.txt`
+     - Start Command: `gunicorn app:app`
+     - 环境：Python 3.10
+
+3. **部署完成**：
+   - 部署成功后，Render 会提供一个公共 URL
+   - 访问该 URL 即可使用网页版签到功能
+
 ## 注意事项
 
-1. **安全性**：本工具在本地运行，账号密码不会被上传到任何服务器
+1. **安全性**：
+   - 网页版：账号信息存储在浏览器的 localStorage 中，只在本地保存
+   - GitHub Actions：账号信息存储在 GitHub Secrets 中，加密存储
+   - 本工具不会将账号信息上传到任何服务器
+
 2. **网络连接**：需要网络连接以访问 NUEDC 和 TI 登录页面
+
 3. **账号绑定**：首次使用时可能需要在浏览器中完成 myTI 账号与 NUEDC 账号的绑定
+
 4. **页面结构**：由于 NUEDC 网站的页面结构可能会变化，获取赫兹币的功能可能需要根据网站更新进行调整
+
 5. **依赖更新**：定期更新依赖包以确保兼容性
+
+6. **Render 免费计划**：
+   - 免费计划的服务会在 15 分钟无活动后睡眠
+   - 访问时可能需要 50 秒以上的启动时间
+   - GitHub Actions 不受此限制，仍会每天自动执行
 
 ## 常见问题
 
@@ -115,9 +189,18 @@ NUEDC_TI_USERNAME=your_email@example.com NUEDC_TI_PASSWORD=your_password python 
 
 **A:** 在网页界面中勾选"显示详细日志"选项，或在命令行中使用 `--verbose` 参数。
 
-### Q: 如何自动化执行签到
+### Q: GitHub Actions 执行失败
 
-**A:** 可以使用系统的任务计划程序（Windows）或 cron（Linux/Mac）设置定时执行脚本。
+**A:** 可能的原因：
+- Secrets 配置错误
+- JSON 格式不正确
+- 网络连接问题
+
+检查 Secrets 配置，确保 JSON 格式正确，并查看 Actions 日志了解具体错误。
+
+### Q: 分享仓库后，别人会看到我的账号信息吗
+
+**A:** 不会。账号信息存储在 GitHub Secrets 中，只有仓库所有者和有相应权限的协作者才能访问。分享仓库时，Secrets 不会被包含在代码中。
 
 ## 技术实现
 
@@ -126,6 +209,8 @@ NUEDC_TI_USERNAME=your_email@example.com NUEDC_TI_PASSWORD=your_password python 
 - **网络请求**：requests 2.31.0
 - **HTML 解析**：BeautifulSoup4 4.14.3
 - **前端**：HTML5 + CSS3
+- **自动化**：GitHub Actions
+- **部署**：Render
 
 ## 许可证
 
@@ -154,3 +239,10 @@ MIT License
 - 模态框式账号管理
 - 优化的账号选择和自动填充功能
 - 更详细的项目文档
+
+### v1.3.0
+- 添加 GitHub Actions 自动签到功能
+- 支持多账号自动签到
+- 提供 Render 部署指南
+- 增强安全性和稳定性
+- 完善项目文档

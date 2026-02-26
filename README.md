@@ -106,7 +106,7 @@ NUEDC_TI_USERNAME=your_email@example.com NUEDC_TI_PASSWORD=your_password python 
    - 进入仓库 Settings → Secrets and variables → Actions
    - 点击 "New repository secret"
    - 添加以下 Secrets：
-     - `NUEDC_USERNAME`：你的 TI 用户名/邮箱
+     - `NUEDC_USERNAME`：你的 TI 用户名/邮箱![alt text](image.png)
      - `NUEDC_PASSWORD`：你的 TI 密码
 
 2. **启用 Workflow**：
@@ -134,7 +134,7 @@ NUEDC_TI_USERNAME=your_email@example.com NUEDC_TI_PASSWORD=your_password python 
 
 ### 3. 自动执行时间
 
-- 默认为每天 UTC 时间 0 点执行（北京时间 8 点）
+- 默认为每天 UTC 时间 16 点执行（北京时间 0 点）
 - 可修改 `.github/workflows/` 目录下的 workflow 文件中的 cron 表达式
 
 ## 注意事项

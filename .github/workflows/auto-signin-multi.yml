@@ -2,7 +2,7 @@ name: Auto Signin Multi
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 16 * * *'  # 每天UTC时间16点执行（北京时间0点）
   workflow_dispatch:
 
 jobs:

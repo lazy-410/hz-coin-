@@ -120,9 +120,14 @@ def send_notification(signin_results):
     """
     Send notification for signin results.
     """
+    print('Starting notification process...')
+    
     # Get webhook from environment variable
     feishu_webhook = os.environ.get('FEISHU_WEBHOOK')
     email = os.environ.get('NOTIFICATION_EMAIL')
+    
+    print(f'Feishu webhook set: {bool(feishu_webhook)}')
+    print(f'Email set: {bool(email)}')
     
     if not feishu_webhook and not email:
         print('No notification channels configured, skipping')
@@ -132,16 +137,26 @@ def send_notification(signin_results):
     title = "NUEDC 自动签到结果"
     content = ""
     
+    print(f'Preparing notification for {len(signin_results)} accounts...')
+    
     for username, result in signin_results.items():
         content += format_signin_result(result, username)
         content += "\n---\n"
     
+    print(f'Notification content prepared: {len(content)} characters')
+    
     # Send notifications
     if feishu_webhook:
-        send_feishu_notification(feishu_webhook, title, content)
+        print('Sending Feishu notification...')
+        success = send_feishu_notification(feishu_webhook, title, content)
+        print(f'Feishu notification sent: {success}')
     
     if email:
-        send_email_notification(email, title, content)
+        print('Sending email notification...')
+        success = send_email_notification(email, title, content)
+        print(f'Email notification sent: {success}')
+    
+    print('Notification process completed')
 
 if __name__ == '__main__':
     # Test notification

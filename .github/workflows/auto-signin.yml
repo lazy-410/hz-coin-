@@ -25,5 +25,4 @@ jobs:
         env:
           NUEDC_USERNAME: ${{ secrets.NUEDC_USERNAME }}
           NUEDC_PASSWORD: ${{ secrets.NUEDC_PASSWORD }}
-        run: |
-          python -c "from signin import run_signin; result = run_signin('${{ secrets.NUEDC_USERNAME }}', '${{ secrets.NUEDC_PASSWORD }}', True); print('Signin result:', result)"
+        run: python -c "from signin import run_signin; result = run_signin('${{ secrets.NUEDC_USERNAME }}', '${{ secrets.NUEDC_PASSWORD }}', True); print('Signin result:', result)"
